@@ -5,8 +5,8 @@ global hp rp R d33 varepsilon33 S0 P v s a alpha w1 w2 T    %% 参数
 global sigma_caculate sigma_model  T_model startTime endTime  V1 T_caculate mdata %% 核心处理数据
 global num outputFilePath template filesNew templatePath storagePath fileName  %% 相关文件路径及文件名称
 template='sigmaCaculate' ;       % 模板文件名
-hp=20*10^-3;                     % 埋置深度
-rp=10*10^-3;                     % 半径
+hp=30*10^-3;                     % 埋置深度
+rp=20*10^-3;                     % 半径
 d33=650*10^-12;                  % 压电系数
 varepsilon33=3850*8.854*10^-12;  % 介电系数
 S0=pi*(rp^2);                    % 压电片的面积
@@ -16,16 +16,19 @@ a=(s/pi)^(1/2);                  % 等效半径
 alpha=1-(1+(a/hp)^2)^(-3/2);      % 衰减系数
 v=200*10^-3;                     % 轮子速度
 T=276;                           % 加载周期
-templatePath='D:\workBench\OriginWorkbench\myOrigin';     % origin模板路径
-storagePath='D:\workBench\OriginWorkbench\10埋深2-2';     % origin图片存储路径
-path='D:\workBench\弹性版空间\10埋深\2-2\';                % 原始数据读取路径
-outputFilePath='D:\workBench\matlabworkbench\10埋深2-2\'; % origin绘图数据存储位置
 R=[1e6,2e6,4e6,6e6,8e6,20e6,30e6,40e6,60e6];              % 几组数据电阻值
+templatePath='D:\workBench\OriginWorkbench\myOrigin';     % origin模板路径
+storagePath='D:\workBench\OriginWorkbench\30埋深3-1';     % origin图片存储路径
+path='D:\workBench\弹性版空间\30埋深\3-1\';                % 原始数据读取路径
+outputFilePath='D:\workBench\matlabworkbench\30埋深3-1\'; % origin绘图数据存储位置
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 [ files,num ] = get_all_files( path );
 filesNew=[files(1:5);files(9:12)];
-for i=1:1:9
+N=9;
+hwait=waitbar(0,'请等待>>>>>>>>');
+for i=1:1:N
     [ T_caculate,V1 ]=chooseData(filesNew{i});
     R0=R(i);
     %% 处理串联并联情况
@@ -46,6 +49,7 @@ for i=1:1:9
     WriteFile(fileName);                                     % 计算结果写入文件
     mdata=[T_caculate,sigma_caculate,T_caculate,sigma_model(startTime:endTime)]; % 初始化origin绘图数据
     OriginPlot();                                            % 操作origin绘图
+    
 end
 % matlab绘图
 % figure(1)
@@ -228,10 +232,23 @@ function [ T_caculate,V1 ]=chooseData(fileName)
     lenBefore=length(VoltageBefore);
     starPoint=1;
     endPoint=lenBefore;
-    if VoltageBefore(1)==VoltageBefore(lenBefore)
-        targetNum=VoltageBefore(1);
-    else
-        targetNum=VoltageBefore(lenBefore);
+    % 寻找干扰数据
+    maxNum=-1e6;
+    minNum=1e6;
+    targetNum=-1e6;
+    for i=1:1:lenBefore
+        if VoltageBefore(i)>maxNum
+            maxNum=VoltageBefore(i);
+        end
+        if VoltageBefore(i)<minNum
+            minNum=VoltageBefore(i);
+        end
+    end
+    if VoltageBefore(1)==minNum || VoltageBefore(lenBefore)==minNum
+        targetNum=minNum;
+    end
+    if VoltageBefore(1)==maxNum || VoltageBefore(lenBefore)==maxNum
+        targetNum=maxNum;
     end
     for i=1:1:lenBefore
         if VoltageBefore(i) ~= targetNum
