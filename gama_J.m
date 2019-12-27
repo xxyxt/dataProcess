@@ -7,24 +7,46 @@ tic;
 % 计算函数矩阵
 % fun_array=caculateFunArray();
 % 计算积分
-res_array=cacalateInt();
+[res_array_r,res_array_sita]=cacalateInt();
 toc;
-function res_array=cacalateInt()
-    J_array=load('C:\Users\tx\Desktop\20191111\data\int\J_array.mat');
+function [res_array_r,res_array_sita]=cacalateInt()
+    a=0.0178;
+    path='D:\matlabworkbench\data';
+    J_array_U=load('D:\matlabworkbench\data\J_array_U.mat');
+    J_array_U=cell2mat(struct2cell(J_array_U));
+    J_array=load('D:\matlabworkbench\data\J_array.mat');
     J_array=cell2mat(struct2cell(J_array));
-    fun_array_z41_z60=load('C:\Users\tx\Desktop\20191111\data\int\fun_array_z41_z60.mat');
-    fun_array_z41_z60=cell2mat(struct2cell(fun_array_z41_z60));
+    fun_array_U=load('D:\matlabworkbench\data\fun_array_U.mat');
+    fun_array_U=cell2mat(struct2cell(fun_array_U));
+    fun_array_sita=load('D:\matlabworkbench\data\fun_array_sita.mat');
+    fun_array_sita=cell2mat(struct2cell(fun_array_sita));
+    fun_array_r_new=load('D:\matlabworkbench\data\fun_array_r_new.mat');
+    fun_array_r_new=cell2mat(struct2cell(fun_array_r_new));
     N=5000;
-    res_array=zeros(20,1);
-    for j=1:1:20
-        for i=1:1:N
-            res_array(j,1)=res_array(j,1)+(fun_array_z41_z60(i+1,j)*J_array(i+1)+fun_array_z41_z60(i,j)*J_array(i))*0.1/2;
+	res_array_U=zeros(60,1);
+    res_array_r=zeros(60,1);
+    res_array_sita=zeros(60,1);
+    for j=1:1:60
+		for i=1:1:N-1
+			res_array_U(j)=res_array_U(j)+(fun_array_U(i+1,j)*J_array_U(i+1)+fun_array_U(i,j)*J_array_U(i))*a*0.1/2;
+		end
+    end
+	for j=1:1:60
+		for i=1:1:N-1
+			res_array_r(j)=res_array_r(j)+(fun_array_r_new(i+1,j)*J_array(i+1)+fun_array_r_new(i,j)*J_array(i))*0.1/2;
         end
     end
+	for j=1:1:60
+		for i=1:1:N-1
+			res_array_sita(j)=res_array_sita(j)+(fun_array_sita(i+1,j)*J_array(i+1)+fun_array_sita(i,j)*J_array(i))*2*0.3*0.1/2;
+		end
+    end
+	res_array_r=res_array_U-res_array_r;
+	res_array_sita=2*0.3*res_array_sita-res_array_U;
 end
 function fun_array=caculateFunArray()
-    v=0.3;  % 泊松比
-    h=0.065;  % 板厚度
+    v=0.3;  % 泊松�?
+    h=0.065;  % 板厚�?
     z=0;  % 深度
     a=0.0178;
     syms xi;
@@ -46,8 +68,8 @@ function fun_array=caculateFunArray()
     % save('C:\Users\tx\Desktop\20191111\data\int\fun_array1.mat',fun_array);
 end
 function [J_array,fun_array,res]=main_function()
-    v=0.3;  % 泊松比
-    h=0.065;  % 板厚度
+    v=0.3;  % 泊松�?
+    h=0.065;  % 板厚�?
     z=0;  % 深度
     a=0.0178;
     syms xi;
@@ -74,7 +96,7 @@ function [J_array,fun_array,res]=main_function()
         index=index+1;
     end
 end
-% 计算J积分的收敛点 返回值 limit=70
+% 计算J积分的收敛点 返回�? limit=70
 function [limit,J_limit]=caculateLimit()
     limit=0;
     alpha=1;
@@ -90,13 +112,13 @@ function gama_res=gama(m)
     syms t;
     gama_res=int(t^(m-1)/exp(t),t,0,inf);
 end
-% 计算J积分 输入参数 alpha为阶数 x为J积分的变量 返回积分值
+% 计算J积分 输入参数 alpha为阶�? x为J积分的变�? 返回积分�?
 function J_res=J(x,alpha)
         J_res=0;
         for m=0:1:500
             J_res_front=J_res;
             J_res=J_res+(-1)^m/(factorial(m)*gama(m+alpha+1))*(x/2)^(2*m+alpha);
-            if abs(J_res_front-J_res)<0.000001  % 收敛点
+            if abs(J_res_front-J_res)<0.000001  % 收敛�?
                 break;
             end
         end
