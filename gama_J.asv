@@ -7,11 +7,13 @@ tic;
 % 计算函数矩阵
 % fun_array=caculateFunArray();
 % 计算积分
-[res_array_r,res_array_sita]=cacalateInt();
+res_array=cacalateInt();
 toc;
-function [res_array_r,res_array_sita]=cacalateInt()
+function res_array_r=cacalateInt()
     a=0.0178;
     path='D:\matlabworkbench\data';
+    J_array=load('D:\matlabworkbench\data\J_array.mat');
+    J_array=cell2mat(struct2cell(J_array));
     J_array_U=load('D:\matlabworkbench\data\J_array_U.mat');
     J_array_U=cell2mat(struct2cell(J_array_U));
     J_array=load('D:\matlabworkbench\data\J_array.mat');
@@ -23,26 +25,14 @@ function [res_array_r,res_array_sita]=cacalateInt()
     fun_array_r_new=load('D:\matlabworkbench\data\fun_array_r_new.mat');
     fun_array_r_new=cell2mat(struct2cell(fun_array_r_new));
     N=5000;
-	res_array_U=zeros(60,1);
     res_array_r=zeros(60,1);
     res_array_sita=zeros(60,1);
     for j=1:1:60
-		for i=1:1:N-1
-			res_array_U(j)=res_array_U(j)+(fun_array_U(i+1,j)*J_array_U(i+1)+fun_array_U(i,j)*J_array_U(i))*a*0.1/2;
-		end
-    end
-	for j=1:1:60
-		for i=1:1:N-1
-			res_array_r(j)=res_array_r(j)+(fun_array_r_new(i+1,j)*J_array(i+1)+fun_array_r_new(i,j)*J_array(i))*0.1/2;
+        for i=1:1:N-1
+            res_array_r(j,1)=res_array_r(j,1)+(a*(fun_array_U(i+1,j)*J_array_U(i+1)+fun_array_U(i,j)*J_array_U(i))*0.1/2-(fun_array_r_new(i+1,j)*J_array(i+1)+fun_array_r_new(i,j)*J_array(i))*0.1/2);
+            res_array_sita(j,1)=res_array_sita(j,1)+(2*0.3*(fun_array_sita(i+1,j)*J_array(i+1)+fun_array_sita(i,j)*J_array(i))*0.1/2-fun_array_U(i+1,j)*J_array_U(i+1)+fun_array_U(i,j)*J_array_U(i))*0.1/2);
         end
     end
-	for j=1:1:60
-		for i=1:1:N-1
-			res_array_sita(j)=res_array_sita(j)+(fun_array_sita(i+1,j)*J_array(i+1)+fun_array_sita(i,j)*J_array(i))*2*0.3*0.1/2;
-		end
-    end
-	res_array_r=res_array_U-res_array_r;
-	res_array_sita=2*0.3*res_array_sita-res_array_U;
 end
 function fun_array=caculateFunArray()
     v=0.3;  % 泊松�?
